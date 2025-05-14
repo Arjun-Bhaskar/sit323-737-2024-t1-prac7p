@@ -1,22 +1,21 @@
-# SIT737 9.1P – Detailed Documentation
+SIT737 9.1P – Detailed Documentation
 
-## 🎯 Objective
+Objective
 
 The goal of this assignment is to integrate a MongoDB database into a containerized Node.js microservice deployed on a Kubernetes cluster. The configuration includes using Kubernetes objects like ConfigMaps, Secrets, Persistent Volumes, StatefulSets, and Services to provision a resilient and scalable MongoDB deployment.
 
-## 🧰 Tools Used
+Tools Used
 
-- **Node.js** – Backend microservice using JavaScript  
-- **MongoDB (v4.0.8)** – NoSQL database  
-- **Kubernetes** – Orchestration platform for managing containerized workloads  
-- **Docker** – For containerization  
-- **kubectl** – CLI for interacting with Kubernetes  
-- **Minikube** – Local Kubernetes cluster for testing  
-- **GitHub** – Version control and submission
+- Node.js – Backend microservice using JavaScript  
+- MongoDB (v4.0.8) – NoSQL database  
+- Kubernetes – Orchestration platform for managing containerized workloads  
+- Docker – For containerization  
+- kubectl – CLI for interacting with Kubernetes  
+- Minikube – Local Kubernetes cluster for testing  
+- GitHub – Version control and submission
 
----
 
-## 📁 Project File Overview
+Project File Overview
 
 | File Name                 | Purpose                                                     |
 |--------------------------|-------------------------------------------------------------|
@@ -30,59 +29,56 @@ The goal of this assignment is to integrate a MongoDB database into a containeri
 
 ---
 
-## 🚀 Setup Process
+Setup Process
 
-### Step 1: Create Kubernetes Secret  
+Step 1: Create Kubernetes Secret  
 Stores MongoDB root user credentials:
-```bash
-kubectl apply -f createMongoDBSecret.yaml
-````
 
-### Step 2: Apply ConfigMap
+kubectl apply -f createMongoDBSecret.yaml
+
+
+Step 2: Apply ConfigMap
 
 Provides the MongoDB configuration file:
 
-```bash
+bash
 kubectl apply -f createConfigMap.yaml
-```
 
-### Step 3: Apply Headless Service
+
+Step 3: Apply Headless Service
 
 Enables stable DNS-based communication between MongoDB pods:
 
-```bash
+bash
 kubectl apply -f createHeadlessService.yaml
-```
 
-### Step 4: Apply StorageClass (if using hostPath)
+
+Step 4: Apply StorageClass (if using hostPath)
 
 Optional: needed only if PVCs use the hostpath class:
 
-```bash
+bash
 kubectl apply -f hostpath-storageclass.yaml
-```
 
-### Step 5: Deploy MongoDB ReplicaSet
+
+Step 5: Deploy MongoDB ReplicaSet
 
 Creates the 3 replica pods and PVCs:
 
-```bash
+
 kubectl apply -f createStatefulSet.yaml
-```
 
----
-
-## 🔁 Replica Set Initialization
+Replica Set Initialization
 
 After the MongoDB pods are running, exec into mongo-0:
 
-```bash
+
 kubectl exec -it mongo-0 -- mongo
-```
+
 
 Then initialize the replica set:
 
-```js
+
 rs.initiate({
   _id: "rs0",
   members: [
@@ -91,54 +87,43 @@ rs.initiate({
     { _id: 2, host : "abc-2.abc.default.svc.cluster.local:27017" }
   ]
 })
-```
 
 
-## ✅ Verification
+
+Verification
 
 Check replica set status:
 
-```bash
 kubectl exec -it mongo-0 -- mongo --eval "rs.status()"
-```
 
 Try basic CRUD:
 
-```js
+
 db.users.insertOne({name: "Alice",age: 25,email: "alice@example.com",status: "active"});
 db.users.find({ status: "active" });
 db.users.updateOne({ name: "Alice" },{ $set: { age: 26 } });
 db.users.deleteOne({ name: "Charlie" });
-```
+
+Backup and Monitoring
+
+* Backup: Use `mongodump` and `mongorestore` for export/import.
+* Monitoring Tools: `mongotop`, `mongostat`, or Prometheus exporters for monitoring performance.
 
 ---
 
-## 📦 Backup and Monitoring
+Cleanup Commands
 
-* **Backup**: Use `mongodump` and `mongorestore` for export/import.
-* **Monitoring Tools**: `mongotop`, `mongostat`, or Prometheus exporters for monitoring performance.
 
----
-
-## 🧹 Cleanup Commands
-
-```bash
 kubectl delete -f createStatefulSet.yaml
 kubectl delete -f createHeadlessService.yaml
 kubectl delete -f createMongoDBSecret.yaml
 kubectl delete -f createConfigMap.yaml
 kubectl delete pvc -l app=mongo
-```
 
----
 
-## 📝 Author & Submission
+Author & Submission
 
-* **Course**: SIT737 – Cloud Native Application Development
-* **Assignment**: 9.1P – Adding a database to your application
-* **Student Name**: Arjun Bhaskar
-* **Repository**: https://github.com/Arjun-Bhaskar/sit323-737-2024-t1-prac7p
-
----
-
-```
+* Course: SIT737 – Cloud Native Application Development
+* Assignment: 9.1P – Adding a database to your application
+* Student Name: Arjun Bhaskar
+* Repository: https://github.com/Arjun-Bhaskar/sit323-737-2024-t1-prac7p
